@@ -104,3 +104,4 @@ vendor/
 
 ### project specific
 /urlshortener
+/server.PID
