@@ -1,4 +1,7 @@
 # URL Shortener in Golang
+
+[![Build Status](https://travis-ci.org/maxbeutel/urlshortener.svg?branch=master)](https://travis-ci.org/maxbeutel/urlshortener)
+
 ## How to use
 Requirements:
 
