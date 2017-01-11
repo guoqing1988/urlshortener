@@ -57,21 +57,16 @@ func ExpandHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Expand Handler", slug)
 
 	id, err := storage.SlugToId(slug)
-	log.Println("Got id", id);
+	log.Println("Got id", id)
 
 	if err != nil {
-		log.Println("Exiting here");
 		http.Error(w, "Invalid slug supplied.", 400)
 		return
 	}
 
-	log.Println("Trying to load");
-
 	ch := make(chan string)
-	go storage.LoadUrl(id, ch);
+	go storage.LoadUrl(id, ch)
 	url := <-ch
-
-	log.Println("Loaded");
 
 	if len(url) == 0 {
 		http.Error(w, "Failed to load url after decoding slug.", 503)
