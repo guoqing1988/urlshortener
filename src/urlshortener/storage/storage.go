@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"sync/atomic"
 	"bytes"
+        "sync/atomic"
 	"errors"
 )
 
@@ -66,14 +66,18 @@ func slugToId(slug string) (id int, err error) {
 }
 
 
-
-// @TODO rename count32 to UrlId or so
 var idCounter int32
 
-func StoreUrl(url string) {
-
+func nextId() int {
+	return int(atomic.AddInt32(&idCounter, 1))
 }
 
-func LoadUrl(slug string) {
+var m = map[int]string{}
 
+func StoreUrl(id int, url string) {
+	m[id] = url
+}
+
+func LoadUrl(id int) string {
+	return m[id]
 }

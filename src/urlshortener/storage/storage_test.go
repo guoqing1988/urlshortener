@@ -43,3 +43,9 @@ func TestSlugToId_InvalidInput(t *testing.T) {
 	assertEqual(t, err.Error(), "Invalid character found in slug", "Wrong error message")
 }
 
+func TestStoreAndLoadUrl(t *testing.T) {
+	StoreUrl(125, "www.google.com")
+	url := LoadUrl(125)
+
+	assertEqual(t, url, "www.google.com", "Wrong URL")
+}
