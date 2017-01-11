@@ -3,6 +3,7 @@ package storage
 import (
 	"sync/atomic"
 	"bytes"
+	"errors"
 )
 
 var slugAlphabet = [...]byte {
@@ -24,7 +25,11 @@ func pow(a, b int) int {
 	return p
 }
 
-func idToSlug(id int) string {
+func idToSlug(id int) (slug string, err error) {
+	if id <= 0 {
+		return "", errors.New("id must be positive integer")
+	}
+
 	slugBytes := []byte{}
 
 	remainder := 0
@@ -37,11 +42,11 @@ func idToSlug(id int) string {
 		slugBytes = append([]byte{ slugAlphabet[remainder] }, slugBytes...)
 	}
 
-	return string(slugBytes[:len(slugBytes)])
+	return string(slugBytes[:len(slugBytes)]), nil
 }
 
-func slugToId(slug string) int {
-	id := 0
+func slugToId(slug string) (id int, err error) {
+	tmpId := 0
 
 	slugBytes := []byte(slug)
 	slugBytesLen := len(slugBytes)
@@ -50,10 +55,14 @@ func slugToId(slug string) int {
 		exponent := slugBytesLen - 1 - i
 		multiplicator := bytes.IndexByte(slugAlphabet[:], r)
 
-		id += multiplicator * pow(62, exponent)
+		if (multiplicator == -1) {
+			return 0, errors.New("Invalid character found in slug")
+		}
+
+		tmpId += multiplicator * pow(62, exponent)
 	}
 
-	return id
+	return tmpId, nil
 }
 
 
