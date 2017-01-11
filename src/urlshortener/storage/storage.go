@@ -2,6 +2,7 @@ package storage
 
 import (
 	"bytes"
+	"sync"
         "sync/atomic"
 	"errors"
 )
@@ -25,7 +26,7 @@ func pow(a, b int) int {
 	return p
 }
 
-func idToSlug(id int) (slug string, err error) {
+func IdToSlug(id int) (slug string, err error) {
 	if id <= 0 {
 		return "", errors.New("id must be positive integer")
 	}
@@ -45,7 +46,7 @@ func idToSlug(id int) (slug string, err error) {
 	return string(slugBytes[:len(slugBytes)]), nil
 }
 
-func slugToId(slug string) (id int, err error) {
+func SlugToId(slug string) (id int, err error) {
 	tmpId := 0
 
 	slugBytes := []byte(slug)
@@ -68,16 +69,30 @@ func slugToId(slug string) (id int, err error) {
 
 var idCounter int32
 
-func nextId() int {
+func NextId() int {
 	return int(atomic.AddInt32(&idCounter, 1))
 }
 
-var m = map[int]string{}
+var storageMap = map[int]string{}
+var lock = sync.RWMutex{}
 
 func StoreUrl(id int, url string) {
-	m[id] = url
+	for {
+		func() {
+			lock.Lock()
+			storageMap[id] = url
+			lock.Unlock()
+		}()
+	}
 }
 
-func LoadUrl(id int) string {
-	return m[id]
+func LoadUrl(id int, ch chan string) {
+	for {
+		func() {
+			lock.RLock()
+			url := storageMap[id]
+			lock.RUnlock()
+			ch <- url
+		}()
+	}
 }
